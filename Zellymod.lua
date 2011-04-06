@@ -18,6 +18,9 @@ zellyref 	= { }
 saveorigin 	= { }
 color 		= { }
 symbol 		= { }
+--StillTestingTHese2
+AutoRefIPs = {}
+AutoRefGUIDs = {}
 
 mapinfo = ""
 password = "###"
@@ -38,10 +41,64 @@ lvl1xp = 1000
 lvl2xp = 10000
 lvl3xp = 15000
 lvl4xp = 25000
+thefile = "info.zellymod"
+zellyGuids = {}
+------------------------------------
+------------------------------------
+------------------------------------
+function addinfo_cmd()
+	if not et.isActive(client) then
+		et.G_Print(string.format("%i is not a valid client\n", client))
+		return 1
+	end
+	
+	local client = tonumber(et.trap_Argv(1))
+	local name = et.Q_CleanSt(et.gentity_get("pers.netname"))
+	local guid = string.higher(et.GetPlayerInfo(client, "cl_guid"))
+	local filesymbol = symbol[client]
+	local filecolor = color[client]
+	local filemoney = money[client]
+	
+	
+	if zellyGuids[guid] = true then
+		et.trap_SendSendServerCommand( client, "print \"GUID: "..guid.." already exists in "..thefile.."\"")
+		return 1
+	end
+	
+	
+	
+  local fd, len = et.trap_FS_FOpenFile(thefile, et.FS_APPEND)
 
-------------------------------------
-------------------------------------
-------------------------------------
+  if len == 1 then
+    et.G_Print(string.format("Could not open %s\n", thefile))
+    return 1
+  end
+
+  local data = string.format("Name: %s | GUID: %s | Symbol: %s | Color %s | Cash %s $\n\n", name,guid, filesymbol,filecolor,filemoney)
+
+  et.trap_FS_Write(data, string.len(data), fd)
+  et.trap_FS_FCloseFile(fd)
+
+  zellyGuids[guid] = true
+  et.G_Print(string.format("%s || successfully added\n", data))
+
+  return 1
+	
+end
+
+
+function loadGuids()--NOTE: Make sure put loadGuids() in InitGame
+  local fd, len = et.trap_FS_FOpenFile(thefile, et.FS_READ)
+
+  if len ~= 1 then
+    local str = et.trap_FS_Read(fd, len)
+    for line in string.gfind(str, "(%x+)") do
+      zellyGuids[string.lower(line)] = true
+    end
+  end
+end
+
+
 function et_InitGame(levelTime,randomSeed,restart)
 
 	et.RegisterModname(Modname .. " " .. Version)
@@ -778,10 +835,15 @@ function et_ClientBegin( clientNum )
 end
 ------------------------------------
 function et_ConsoleCommand()
-  if string.lower(et.trap_Argv(0)) == "g_warmode" then
-    return warmode_cmd()
-  end
-  return 0
+	if string.lower(et.trap_Argv(0)) == "addinfo" then
+		return addinfo_cmd()
+	end
+	
+	if string.lower(et.trap_Argv(0)) == "g_warmode" then
+		return warmode_cmd()
+	end
+	
+	return 0
 end
 
 
