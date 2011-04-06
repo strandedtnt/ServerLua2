@@ -1,3 +1,19 @@
-This lua File was created by Zelly for the Error Clan Community Server
+This lua File was created by Zelly for the Error Clan Community
 Any Changes Please notify Zelly somehow
-TY:)
+EMAIL: (inanimatebeing@live.com)
+
+To Install you must have the lua .dll or .so from the lua website in your server and you must have a mod that supports lua
+
+Once you have that, Put Zellymod.lua in your etmain directory.
+
+Couple things:
+
+Might not work for different mods
+
+Lots of stuff is commented out due to the fact it dosent work or I dont want it on the server at the moment. Most of it works however.
+
+Its messy I know :)
+
+I try to keep it clean but I work on it so much and its a compilation of many different Luas that have been personally edited
+
+
