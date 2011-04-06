@@ -47,12 +47,16 @@ zellyGuids = {}
 ------------------------------------
 ------------------------------------
 function addinfo_cmd()
+	local client = tonumber(et.trap_Argv(1))
+	  if et.trap_Argc() < 2 then
+    et.G_Print("Usage: addinfo <clientnum> [comment]\n")
+    return 1
+  end
 	if not et.isActive(client) then
 		et.G_Print(string.format("%i is not a valid client\n", client))
 		return 1
 	end
 	
-	local client = tonumber(et.trap_Argv(1))
 	local name = et.Q_CleanSt(et.gentity_get("pers.netname"))
 	local guid = string.higher(et.GetPlayerInfo(client, "cl_guid"))
 	local filesymbol = symbol[client]
@@ -60,8 +64,8 @@ function addinfo_cmd()
 	local filemoney = money[client]
 	
 	
-	if zellyGuids[guid] = true then
-		et.trap_SendSendServerCommand( client, "print \"GUID: "..guid.." already exists in "..thefile.."\"")
+	if zellyGuids[guid] == true then
+		et.G_Print("GUID: "..guid.." already exists in "..thefile.."\"")
 		return 1
 	end
 	
@@ -69,7 +73,7 @@ function addinfo_cmd()
 	
   local fd, len = et.trap_FS_FOpenFile(thefile, et.FS_APPEND)
 
-  if len == 1 then
+  if len == -1 then
     et.G_Print(string.format("Could not open %s\n", thefile))
     return 1
   end
@@ -80,7 +84,7 @@ function addinfo_cmd()
   et.trap_FS_FCloseFile(fd)
 
   zellyGuids[guid] = true
-  et.G_Print(string.format("%s || successfully added\n", data))
+  et.G_Print(string.format("%s || successfully added\n", guid))
 
   return 1
 	
@@ -118,6 +122,7 @@ function et_InitGame(levelTime,randomSeed,restart)
 		color[z]		= 2
 		symbol[z]		= ":"
 	end
+	loadGuids()
 	------Map settings
 	--et.trap_Cvar_Set( cvarname, cvarvalue )
 	--All values are set each map just incase map gets skipped or somthing
