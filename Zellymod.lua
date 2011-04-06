@@ -1,7 +1,7 @@
 -----------------------------------
 --Zellymod.lua
 --Other mods in this mod:
---[ref_monitor.lua --(c) 2006 brush]
+--[ref_monitor.lua --(c) 2006 brush]--Irony Being the one file i take dosent work properly (Although it might just be because of permissions, Will test)
 ---MODINFO--
 Modname="Zellymod.lua"
 
