@@ -59,7 +59,7 @@ function et_InitGame(levelTime,randomSeed,restart)
 		pingclient[z]	= 0 
 		zellyref[z]		= 0
 		color[z]		= 2
-		symbol[z]		= ">"
+		symbol[z]		= ":"
 	end
 	------Map settings
 	--et.trap_Cvar_Set( cvarname, cvarvalue )
@@ -1067,8 +1067,10 @@ function et_ClientCommand(client, command)
 	if arg0 == "say" then
 		local name = et.gentity_get(client, "pers.netname")
 	arg1string = string.format(arg1)
+	if arg1string == "!colorify" then return colorify(name,arg2) end
 	if string.find(arg1string, "!",1) then return 0 end
-	if string.find(arg1string, "/",1) then return 0 end
+	if arg1string == "/m" then return 0 end
+	
 	--if string.find(arg1string, "@color") then return colorcmd(client,arg2,name) end
 	--if string.find(arg1string, "@symbol") then return symbolcmd(client,arg2,name) end
 		message = et.ConcatArgs(1)
@@ -1245,6 +1247,18 @@ entered_argument = et.trap_Argv(1)
 	end
 end---END OF CLIENT COMMAND
 
+function colorify(name,arg2)
+	local nname = et.Q_CleanStr(name)
+	et.trap_SendServerCommand( client, "chat \"Not yet functionable\"")
+	if string.len(arg2) >= 3 then
+	
+	else
+	return 1
+	end
+
+
+end
+
 function colorcmd(client, colorClient, name)
 	if string.len(colorClient) == 1 then
 		color[client] = colorClient
@@ -1363,7 +1377,7 @@ function et_ClientSpawn( clientNum, revived, teamChange, restoreHealth )
 		setlevel(clientNum,3,lvl3xp)
 	elseif getXP(clientNum) >= lvl4xp then
 		setlevel(clientNum,4,lvl4xp)
-	elseif getXP(clientNum) >= xp1 and getXP(clientNum) < lvl1xp then
+--[[	elseif getXP(clientNum) >= xp1 and getXP(clientNum) < lvl1xp then
 		if getlevel(clientNum) >= 1 then return end
 	et.trap_SendServerCommand(clientNum,"chat \"^7You now have^1 300 XP ^7Once you reach ^11000 xp^7, You will receive ^1Admin Level One!\"")
 	elseif getXP(clientNum) >= xp1 and getXP(clientNum) < lvl2xp then
@@ -1371,7 +1385,7 @@ function et_ClientSpawn( clientNum, revived, teamChange, restoreHealth )
 	et.trap_SendServerCommand(clientNum,"chat \"^7You now have^1 500 XP ^7Half Way!,500 More and you will receive ^1Admin Level One!\"")
 	elseif getXP(clientNum) >= xp1 and getXP(clientNum) < lvl1xp then
 		if getlevel(clientNum) >= 1 then return end
-	et.trap_SendServerCommand(clientNum,"chat \"^7You now have^1 900 XP ^7Your almost there!^7,100 More and you will receive ^1Admin Level One!\"")
+--	et.trap_SendServerCommand(clientNum,"chat \"^7You now have^1 900 XP ^7Your almost there!^7,100 More and you will receive ^1Admin Level One!\"")]]
 	end
 end
 
