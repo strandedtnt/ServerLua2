@@ -8,12 +8,15 @@ Once you have that, Put Zellymod.lua in your etmain directory.
 
 Couple things:
 
-Might not work for different mods
+Might not fully work on other mods
 
-Lots of stuff is commented out due to the fact it dosent work or I dont want it on the server at the moment. Most of it works however.
+Working on cleaning it up, so not all features are included at the moment.
 
-Its messy I know :)
+Right now it mainly just has some custom commands, and killing spree tracking.
 
-I try to keep it clean but I work on it so much and its a compilation of many different Luas that have been personally edited
+I need to learn a bit more on how file writing works for et.
+(I get error Filehandler, There are many ways I have tried)
+(My next shot will be just to write everything into a variable,
+and then go on to writing at the end of the round)
 
-
+https://github.com/Zelly/ServerLua2/wiki
