@@ -13,9 +13,9 @@
 		]]--
 
 
-Modname="Zombiemod.lua"
+Modname="Zellymod.lua"
 
-Version="v3.6" --Started at 3.6 *Random guess
+Version="v3.9"
 
 --Global Variables
 
@@ -27,9 +27,19 @@ admin = { }
 kdr = { }
 ping = { }
 save = { }
+chat = { }
+color = { }
+symbol = { }
+noGuid = { }
+banned_guids = {
+}
+banned_ips = {
+}
 
-mod_info = "In Progress"
-help_text = "login and logout command.. To be continued"
+
+banned_message = "Sorry you weren't able to connect."
+mod_info = Modname .. Version
+help_text = "login,logout,ping,pingother,god,save,load,bring,goto And more to come :P"
 admin_password = "cheesus"
 ---
 --Rules
@@ -59,6 +69,9 @@ function et_InitGame(levelTime,randomSeed,restart)
 		spree[z] = 0
 		admin[z] = false
 		kdr[z] = 0
+		chat[z] = false
+		color[z] = 2
+		symbol[z] = ":"
 	end
 end
 
@@ -74,6 +87,41 @@ function et_ClientCommand(client, command)
 	arg6 = string.lower(et.trap_Argv(6))
 	arg7 = string.lower(et.trap_Argv(7))
 	arg8 = string.lower(et.trap_Argv(8))
+	
+	--New Chat
+	if (arg0 == "say") then
+		if (chat[client]) then
+			local message = et.ConcatArgs(1)
+			local name = et.gentity_get(client,"pers.netname")
+			if (admin[client]) then
+				et.trap_SendServerCommand( -1, "chat \"^7[^"..color[client].."Admin^7]"..name.."^7"..symbol[client].."^"..color[client].." "..message.."\"")
+			else
+				et.trap_SendServerCommand( -1, "chat \""..name.."^7"..symbol[client].."^"..color[client].." "..message.."\"")
+			end
+		end
+	end
+	
+	if (arg0 == "color") then
+		local arg1 = tonumber(arg1)
+		if (arg1 == nil or arg1 == "") then
+			return "Missing argument one(numberplease)"
+		else
+			color[client] = arg1
+			return 1
+		end		
+	end
+	if (arg0 == "symbol") then
+		if (arg1 == nil or arg1 == "") then
+			return "Missing argument one(numberplease)"
+		else
+			if (strlen(arg1 > 4)) then
+				return "Too Long"
+			else
+				symbol[client] = arg1
+			return 1
+			end
+		end		
+	end
 	
 	--Calculator
 	if (arg0 == "say") and (arg1 == "||") then
@@ -216,8 +264,8 @@ function et_ClientCommand(client, command)
 	return 1
 	end
 	---Small Hack detection
-	--[[
-	if (string.find(arg0) == "aim") or (string.find(arg0) == "bot") or (string.find(arg0) == "wall") or (string.find(arg0) == "hack") or (string.find(arg0) == "damage") or (string.find(arg0) == "hax") then
+	
+	if (string.find(arg0, "aim")) or (string.find(arg0, "bot")) or (string.find(arg0, "wall")) or (string.find(arg0, "hack")) or (string.find(arg0, "string")) or (string.find(arg0, "hax")) then
 		et.G_LogPrint(string.format("\n\nCvar/Command detected: "..name.."^7 ("..client..") ^1Typed: ^7"..arg0.."\n\n"))
 	end
 	
@@ -226,13 +274,19 @@ function et_ClientCommand(client, command)
 	end
 	if (arg0 == "rcon") and (arg1 ~= string.lower(rcon_password)) then
 		et.G_LogPrint(string.format("\n\nCvar/Ref Attempt: "..name.."^7 ("..client..") ^1Typed: ^7"..arg0.." "..arg1.."\n\n"))
-	end--]]
+	end
 end
 
+--[[function et_ConsoleCommand()
+	local arg0 = string.lower(et.trap_Argv(0))
+	local arg1 = string.lower(et.trap_Argv(1))
+	local arg2 = string.lower(et.trap_Argv(2))
+	
+end--]]
 
 function et_ClientConnect( clientNum, firstTime, isBot ) 
 	local userinfo = et.trap_GetUserinfo( clientNum ) --Get userinfo for below var's
-	local guid     = et.Info_ValueForKey( userinfo, "cl_guid" )--Get client guid
+	local guid     = string.lower(et.Info_ValueForKey( userinfo, "cl_guid" ))--Get client guid
 	local name     = et.Info_ValueForKey( userinfo, "name" )--Get client Name
 	local clientIp = et.Info_ValueForKey( userinfo, "ip" )--Get client Name
 	if clientIp == "localhost" then 
@@ -240,6 +294,13 @@ function et_ClientConnect( clientNum, firstTime, isBot )
 	else
 	local cIp      = string.sub(clientIp,string.find(clientIp,"(%d+%.%d+%.)"))--Get client IP but blanks the ending digits
 	et.trap_SendConsoleCommand(et.EXEC_APPEND, "chat ^2[^>Z^7MOD^2]^7: ^2"..name.."^7 connected. ^z(^7"..cIp.."**.**.**^z)\"\n")--For Other clients
+	end
+	
+	if (guid == "noguid") or (guid == "no_guid") or (guid == "unknown") or (guid == "") then
+		noGuid[clientNum] = true
+	end
+	if (guid == banned_guids) or (clientIp == banned_ips) then
+		return banned_message
 	end
 end
 
@@ -257,8 +318,13 @@ function et_Obituary( victim, killer, meansofdeath )
 			death[victim] = death[victim] + 1
 			spree[killer] = spree[killer] + 1
 			spree[victim] = 0
-			kdr[killer] = math.floor((kill[killer]/death[killer]))
-			kdr[victim] = math.floor((kill[victim]/death[victim]))
+			kdr[killer] = (kill[killer]/death[killer])
+			kdr[victim] = (kill[victim]/death[victim])
+			digits = 2		-- you want 1 digit after the decimal point
+			 
+			shift = 10 ^ digits
+			kdr[killer] = math.floor( kdr[killer]*shift + 0.5 ) / shift
+			kdr[victim] = math.floor( kdr[killer]*shift + 0.5 ) / shift
 			et.trap_SendServerCommand( killer, "cpm \"You are on a "..spree[killer].." killingspree.\"")
 			et.trap_SendServerCommand( killer, "cpm \"Your total kills are: "..kill[killer]..". Total deaths are: "..death[killer]..". Your KDR is "..kdr[killer].."\"")
 			et.trap_SendServerCommand( victim, "cpm \"Your total kills are: "..kill[victim]..". Total deaths are: "..death[victim]..". Your KDR is "..kdr[victim].."\"")
