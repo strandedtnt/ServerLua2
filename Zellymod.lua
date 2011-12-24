@@ -6,6 +6,11 @@
 --Console command: Time
 --Console command: Rules(For shrubbot as well)
 					--Along with website command and others.
+--[[
+
+		Do Console Commands in general!!
+		
+		]]--
 
 
 Modname="Zombiemod.lua"
@@ -178,7 +183,34 @@ function et_ClientCommand(client, command)
 				end
 			elseif (arg1 == "save") then
 				save[client] = et.gentity_get(client,"r.currentOrigin") 
-				et.trap_SendServerCommand( client, "chat \"^7___^5Saved^7___\"")
+				et.trap_SendServerCommand( client, "cpm \"^7___^5Saved^7___\"")
+			elseif (arg1 == "load") then
+				et.gentity_set( client, "origin", save[client] ) 
+				et.trap_SendServerCommand( client, "cpm \"^7___^5Loaded^7___\"")
+			elseif (arg1 == "goto") then
+				local error_text = "Invalid client ID in argument #2"
+				if (arg2 == nil) or (arg2 == "") then
+					return error_text
+				end
+				local gotoClient = tonumber(arg2)
+				local gotoName = et.gentity_get(gotoClient, "pers.netname")
+				local gotoOrigin = et.gentity_get(gotoClient,"r.currentOrigin")
+				local Name = et.gentity_get(client, "pers.netname")
+				et.gentity_set( client, "origin", gotoOrigin )
+				et.trap_SendServerCommand( client, "cpm \"^5Going to "..gotoName.."^7\"")
+				et.trap_SendServerCommand( gotoClient, "cpm \"^7"..Name.."^5 went to you.^7\"")
+			elseif (arg1 == "bring") then
+				local error_text = "Invalid client ID in argument #2"
+				if (arg2 == nil) or (arg2 == "") then
+					return error_text
+				end
+				local bringClient = tonumber(arg2)
+				local bringName = et.gentity_get(bringClient, "pers.netname")
+				local clientOrigin = et.gentity_get(client,"r.currentOrigin")
+				local Name = et.gentity_get(client, "pers.netname")
+				et.gentity_set( bringClient, "origin", clientOrigin )
+				et.trap_SendServerCommand( client, "cpm \"^5Going to "..bringName.."^7\"")
+				et.trap_SendServerCommand( bringClient, "cpm \"^7You are being brought to "..Name.."^7\"")
 			end
 		end
 	return 1
