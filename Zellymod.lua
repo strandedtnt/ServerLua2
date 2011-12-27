@@ -15,7 +15,7 @@
 
 Modname="Zellymod.lua"
 
-Version="v3.9"
+Version="v4.0"
 
 --Global Variables
 
@@ -31,6 +31,11 @@ chat = { }
 color = { }
 symbol = { }
 noGuid = { }
+
+zombie = { }
+zombieAvail = { }
+max_players = 0
+zombiemode=false
 banned_guids = {
 }
 banned_ips = {
@@ -63,6 +68,8 @@ function et_InitGame(levelTime,randomSeed,restart)
 	beginTime=levelTime
 	local currentver = et.trap_Cvar_Get("mod_version")
 	et.trap_SendConsoleCommand(et.EXEC_APPEND, "forcecvar mod_version \"" .. currentver .. " - ZMOD" .. Version .. "\"" .. "\n" )
+	
+	
 	for z = 0, maxclients - 1 do
 		kill[z] = 0
 		death[z] = 0
@@ -72,9 +79,11 @@ function et_InitGame(levelTime,randomSeed,restart)
 		chat[z] = false
 		color[z] = 2
 		symbol[z] = ":"
-	end
-end
+		
 
+	end
+	
+end
 
 function et_ClientCommand(client, command)
 
@@ -87,7 +96,22 @@ function et_ClientCommand(client, command)
 	arg6 = string.lower(et.trap_Argv(6))
 	arg7 = string.lower(et.trap_Argv(7))
 	arg8 = string.lower(et.trap_Argv(8))
+	--Quick test commands, Taken out in final release
+	if (arg0 == "checkactive") then
+		et.trap_SendServerCommand( -1, "chat \""..et.gentity_get(client,"inuse").."\"")
+		return 1
+	end
 	
+	if (arg0 == "checkteam") then
+		et.trap_SendServerCommand( -1, "chat \""..et.gentity_get(client,"sess.sessionteam").."\"")
+		return 1
+	end
+	
+	
+	if (arg0 == "checkplayers") then
+		et.trap_SendServerCommand( -1, "chat \""..max_players.."\"")
+		return 1
+	end
 	--New Chat
 	if (arg0 == "say") then
 		if (chat[client]) then
@@ -345,5 +369,38 @@ function et_RunFrame( levelTime )
 			et.gentity_set(z, "ps.ping",ping[z])
 		end
 	end
+	if (zombiemode) then
+	if (levelTime == beginTime +2000) then
+		for h = 0, maxclients - 1 do
+			
+		if (et.gentity_get(h,"inuse") == 1) and (et.gentity_get(h, "sess.sessionteam") ~= 3) and (et.gentity_get(h,"ps.ping") ~= 0) then
+			max_players = max_players + 1
+			zombieAvail[max_players] = h
+			et.trap_SendServerCommand( h, "chat \"You are possible zombie canidate\"")
+		end
+		end
+		
+	if (gamestate == 0) then
+		local randomC = math.random(1,max_players)
+		local zombieC = zombieAvail[randomC]
+		zombie[zombieC] = true
+		
+		et.trap_SendServerCommand( zombieC, "chat \"You are zombie\"")
+		for i = 0, maxclients - 1 do
+			if (zombie[i]) then
+				et.trap_SendConsoleCommand(et.EXEC_APPEND, "!putteam "..i.." r\"\n")
+			else
+				et.trap_SendConsoleCommand(et.EXEC_APPEND, "!putteam "..i.." b\"\n")
+			end
+		end
+	end
+		
+	end
+	end
+end
 
+function isBot(playerID)
+	if et.gentity_get(playerID,"ps.ping") == 0 then
+		return true
+	end
 end
