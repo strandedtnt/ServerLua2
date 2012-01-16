@@ -24,11 +24,7 @@ kill = { }
 death = { }
 spree = { }
 admin = { }
-kdr = { }
-ping = { }
-save = { }
-chat = { }
-color = { }
+kdr = { }asodm saomd oasm das asd sad sa das das
 symbol = { }
 noGuid = { }
 
